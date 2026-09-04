@@ -1,7 +1,7 @@
 # Multi-stage build: dependency caching via cargo-chef, then the binary, then
 # a small Debian runtime with the libraries dxpdf links against at runtime.
 
-FROM rust:1.88-bookworm AS chef
+FROM rust:1.98-bookworm AS chef
 RUN cargo install cargo-chef
 WORKDIR /app
 
