@@ -29,12 +29,17 @@ rather than reporting a missing dependency. GitHub's hosted runners ship ninja
 already, so a missing entry here shows up only in the container build — which
 `.github/workflows/docker.yml` exists to catch.
 
-MSRV is 1.88 (`rust-version` in `Cargo.toml`), matching the Dockerfile's
-`rust:1.88-bookworm` base. It's driven by the dependency tree — `image` and
-`time` declare 1.88, and `dxpdf` pulls `clap`, which needs `edition2024` — not
-by anything in this repo's own source. A CI job builds against it explicitly;
-bumping a dependency can raise it, so update `rust-version`, the CI job, and
-CONTRIBUTING.md together.
+MSRV is 1.89 (`rust-version` in `Cargo.toml`). It's set by the dependency tree
+— currently `crc-fast`, via `object_store` — not by anything in this repo's own
+source, so a routine dependency bump can raise it. The CI job reads the value
+straight from `Cargo.toml`, so `rust-version` is the single place to change it;
+recompute the floor with:
+
+```bash
+cargo metadata --format-version 1 | python3 -c "import json,sys; \
+  print(max((p['rust_version'] for p in json.load(sys.stdin)['packages'] if p.get('rust_version')), \
+  key=lambda v: tuple(int(x) for x in v.split('.'))))"
+```
 
 ## Architecture
 

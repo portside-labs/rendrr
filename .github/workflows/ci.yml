@@ -52,12 +52,22 @@ jobs:
             clang cmake ninja-build python3 \
             libfontconfig1-dev libfreetype-dev pkg-config
 
-      # Pinned to the `rust-version` in Cargo.toml, which is set by the
-      # dependency tree (image/time need 1.88, and dxpdf pulls clap, which
-      # needs edition2024) rather than by anything in our own source. Without
-      # this job the `stable` job would happily compile code the documented
-      # MSRV can't build.
-      - uses: dtolnay/rust-toolchain@1.88.0
+      # The toolchain is read from `rust-version` in Cargo.toml rather than
+      # hardcoded here. Pinning it in both places let them drift: a dependency
+      # bump raised the real floor and this job kept testing the old one.
+      #
+      # The floor comes from the dependency tree, not from anything in this
+      # repo's own source, so a routine Dependabot bump can raise it.
+      - name: Read MSRV from Cargo.toml
+        id: msrv
+        run: |
+          msrv="$(grep -m1 '^rust-version' Cargo.toml | cut -d'"' -f2)"
+          echo "version=${msrv}" >> "$GITHUB_OUTPUT"
+          echo "MSRV from Cargo.toml: ${msrv}"
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ steps.msrv.outputs.version }}
 
       - uses: Swatinem/rust-cache@v2
 

@@ -33,10 +33,11 @@ sudo apt-get install -y --no-install-recommends \
 brew install cmake ninja fontconfig freetype
 ```
 
-You'll also need Rust 1.88+ (`rustup install stable`); the MSRV is pinned as
-`rust-version` in `Cargo.toml` and enforced by a CI job. It's set by the
-dependency tree rather than by anything in this repo's own source, so bumping
-a dependency can raise it.
+You'll also need Rust 1.89+ (`rustup install stable`). The MSRV is pinned as
+`rust-version` in `Cargo.toml`, and the CI job reads that value rather than
+hardcoding one, so `Cargo.toml` is the only place to change it. It's set by the
+dependency tree rather than by anything in this repo's own source, so bumping a
+dependency can raise it.
 
 ### Local development loop
 

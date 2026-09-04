@@ -2,7 +2,7 @@
 name = "rendrr"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.88"
+rust-version = "1.89"
 license = "MIT"
 description = "Self-hostable HTTP service that renders DOCX templates (Handlebars syntax) into DOCX or PDF using only in-process libraries."
 repository = "https://github.com/portside-labs/rendrr"

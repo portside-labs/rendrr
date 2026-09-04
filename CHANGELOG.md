@@ -17,8 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   specific list. Unset keeps the previous permissive behavior.
 - `IMAGE_FETCH_ALLOW_PRIVATE_NETWORKS` to opt out of the new SSRF guard for
   deployments that legitimately serve template images from a private network.
-- `rust-version` (1.88) in `Cargo.toml`, matching the Dockerfile base image,
-  with a CI job that builds against it.
+- `rust-version` (1.89) in `Cargo.toml`, with a CI job that builds against it.
+  The job reads the value from `Cargo.toml` instead of hardcoding a toolchain,
+  so the two can't drift.
 - Dependabot configuration and a scheduled `cargo audit` workflow.
 - A `Docker` workflow that builds the container image and smoke-tests it on
   any change to the Dockerfile or the dependency manifests. The image is what
