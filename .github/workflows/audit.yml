@@ -35,8 +35,8 @@ jobs:
       # caller-supplied input, so the exposure is materially lower than the
       # advisory's general case. The fix needs object_store 0.14, whose trait
       # methods return `impl Future` and so no longer work through the
-      # `Arc<dyn ObjectStore>` that StorageClient is built on. Tracked in the
-      # repo issues; remove these ignores with that upgrade.
+      # `Arc<dyn ObjectStore>` that StorageClient is built on. Tracked in
+      # issue #15; remove these ignores with that upgrade.
       - name: Check for known vulnerabilities
         run: |
           cargo audit \
