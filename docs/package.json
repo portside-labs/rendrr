@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/vue": "^5.1.1",
-    "@floating-ui/vue": "^1.1.6",
+    "@floating-ui/vue": "^2.0.1",
     "astro": "^5.13.7",
     "shiki": "^1.24.4",
     "vue": "^3.5.13",
