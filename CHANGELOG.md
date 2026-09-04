@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rust-version` (1.88) in `Cargo.toml`, matching the Dockerfile base image,
   with a CI job that builds against it.
 - Dependabot configuration and a scheduled `cargo audit` workflow.
+- A `Docker` workflow that builds the container image and smoke-tests it on
+  any change to the Dockerfile or the dependency manifests. The image is what
+  ships, but nothing validated it until a release tag fired.
 - Integration tests that render the shipped sample templates in
   `docs/public/samples/` with their documented payloads, covering real Word
   documents rather than hand-built fixtures.
@@ -48,9 +51,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added `ninja-build` and `python3` to the CI dependency lists. `skia-bindings`
-  drives a GN + ninja build; GitHub's hosted runners happen to ship ninja, so
-  relying on the runner image was masking a real requirement.
+- The container image now builds. `dxpdf` enables skia-safe's `embed-freetype`
+  feature, and rust-skia publishes no prebuilt binary for that combination, so
+  `skia-bindings` compiles Skia from source — which needs `ninja` and `python3`
+  (absent from the builder stage) and a toolchain newer than Debian bookworm's
+  GCC 12, whose libstdc++ headers fail Skia's C++20 build on arm64. The image
+  is now based on Debian trixie and installs both tools; `ninja-build` and
+  `python3` were added to the CI dependency lists for the same reason.
+- The service user in the container now has a home directory and a font cache
+  built at image-build time. Without a writable cache, fontconfig logged
+  "No writable cache directories" and rescanned the font set on every process
+  start.
 - Dropped `quick-xml` as a direct dependency — it was declared but never
   referenced anywhere in the source.
 - Removed the unused `multipart` feature from `reqwest`; inbound uploads are

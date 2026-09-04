@@ -1,0 +1,73 @@
+name: Docker
+
+# The container image is what actually ships, but nothing validated it until a
+# `v*` tag fired the release workflow — so a Dockerfile or build-dependency
+# problem surfaced at release time, on the one workflow you least want to
+# debug under pressure. This builds the image on any change that could affect
+# it, and never pushes.
+#
+# It caught exactly that: skia-bindings drives a GN + ninja build, and the
+# builder stage had no ninja. CI stayed green because GitHub's hosted runners
+# ship ninja; only the container build failed.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/docker.yml"
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/docker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # amd64 only. The release workflow covers arm64 on a native runner; the
+      # point here is to catch build-dependency breakage early, which is
+      # architecture-independent and not worth doubling the runtime for.
+      - name: Build (no push)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: rendrr:ci
+          cache-from: type=gha,scope=docker-ci
+          cache-to: type=gha,mode=max,scope=docker-ci
+
+      # A binary that can't start is as broken as one that won't build, and
+      # `--version` exercises the runtime stage's shared libraries without
+      # needing any storage configuration.
+      - name: Smoke-test the image
+        run: |
+          version="$(docker run --rm rendrr:ci rendrr --version)"
+          echo "Image reports: ${version}"
+          expected="rendrr $(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)"
+          if [ "$version" != "$expected" ]; then
+            echo "::error::Image reports '${version}', expected '${expected}'"
+            exit 1
+          fi
+
+      - name: Confirm the healthcheck command exists in the image
+        run: |
+          docker run --rm --entrypoint sh rendrr:ci -c 'command -v curl >/dev/null' \
+            || { echo "::error::curl is missing; the Dockerfile HEALTHCHECK would always fail"; exit 1; }
