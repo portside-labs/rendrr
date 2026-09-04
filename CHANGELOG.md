@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   specific list. Unset keeps the previous permissive behavior.
 - `IMAGE_FETCH_ALLOW_PRIVATE_NETWORKS` to opt out of the new SSRF guard for
   deployments that legitimately serve template images from a private network.
-- `rust-version` (1.80) in `Cargo.toml`, with a CI job that builds against it.
+- `rust-version` (1.88) in `Cargo.toml`, matching the Dockerfile base image,
+  with a CI job that builds against it.
 - Dependabot configuration and a scheduled `cargo audit` workflow.
 
 ### Changed
@@ -36,6 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `main.rs` and the integration tests now share a single `build_router`, so the
   tested route table is the one that ships.
 
+### Fixed
+
+- Dropped `quick-xml` as a direct dependency — it was declared but never
+  referenced anywhere in the source.
+- Removed the unused `multipart` feature from `reqwest`; inbound uploads are
+  handled by axum.
+
 ### Security
 
 - **SSRF guard on image fetching.** The `{{image}}` helper takes its URL from
@@ -47,6 +55,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Image download size cap is now enforced while streaming** rather than
   after the whole body is buffered, so a hostile URL can't exhaust memory by
   ignoring its advertised `Content-Length`.
+- Resolved 6 of 8 advisories reported by `cargo audit`: `reqwest` 0.11 → 0.12
+  drops `hyper` 0.14 and `h2` 0.3 (RUSTSEC-2026-0258), `dxpdf` 0.2 → 0.5
+  brings `quick-xml` to 0.41 (RUSTSEC-2026-0194/0195), and a lockfile refresh
+  clears `crossbeam-epoch`, `quinn-proto`, and `rustls-webpki`. The two
+  remaining `quick-xml` advisories are reachable only through `object_store`,
+  which parses XML from the configured S3 endpoint; clearing them needs
+  `object_store` 0.14 and a `StorageClient` refactor.
 - **Decompression limit on template archives.** A `.docx` is a ZIP, so a
   template within the 25MB upload limit could previously expand to gigabytes
   and exhaust memory. Individual archive entries are now capped at 100MB while

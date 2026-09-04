@@ -50,9 +50,12 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             clang cmake libfontconfig1-dev libfreetype-dev pkg-config
 
-      # Pinned to the `rust-version` in Cargo.toml. Without this the `stable`
-      # job would happily compile code that the documented MSRV can't build.
-      - uses: dtolnay/rust-toolchain@1.80.0
+      # Pinned to the `rust-version` in Cargo.toml, which is set by the
+      # dependency tree (image/time need 1.88, and dxpdf pulls clap, which
+      # needs edition2024) rather than by anything in our own source. Without
+      # this job the `stable` job would happily compile code the documented
+      # MSRV can't build.
+      - uses: dtolnay/rust-toolchain@1.88.0
 
       - uses: Swatinem/rust-cache@v2
 

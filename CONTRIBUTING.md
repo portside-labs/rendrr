@@ -32,8 +32,10 @@ sudo apt-get install -y --no-install-recommends \
 brew install cmake fontconfig freetype
 ```
 
-You'll also need Rust 1.80+ (`rustup install stable`); the MSRV is
-pinned as `rust-version` in `Cargo.toml`.
+You'll also need Rust 1.88+ (`rustup install stable`); the MSRV is pinned as
+`rust-version` in `Cargo.toml` and enforced by a CI job. It's set by the
+dependency tree rather than by anything in this repo's own source, so bumping
+a dependency can raise it.
 
 ### Local development loop
 

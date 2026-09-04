@@ -25,8 +25,12 @@ cargo run -- --version   # Print the version and exit
 `libfontconfig1-dev`, and `libfreetype-dev` (Debian) or
 `brew install cmake fontconfig freetype` (macOS) before the first build.
 
-MSRV is 1.80 (`rust-version` in `Cargo.toml`), driven by `std::sync::LazyLock`.
-CI builds against it explicitly — don't use newer std APIs without bumping both.
+MSRV is 1.88 (`rust-version` in `Cargo.toml`), matching the Dockerfile's
+`rust:1.88-bookworm` base. It's driven by the dependency tree — `image` and
+`time` declare 1.88, and `dxpdf` pulls `clap`, which needs `edition2024` — not
+by anything in this repo's own source. A CI job builds against it explicitly;
+bumping a dependency can raise it, so update `rust-version`, the CI job, and
+CONTRIBUTING.md together.
 
 ## Architecture
 
