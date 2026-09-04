@@ -1,7 +1,7 @@
 use crate::errors::StorageError;
 use crate::models::StorageConfig;
 use bytes::Bytes;
-use object_store::{aws::AmazonS3Builder, ObjectStore};
+use object_store::{aws::AmazonS3Builder, ObjectStore, ObjectStoreExt};
 use std::sync::Arc;
 
 #[derive(Clone)]

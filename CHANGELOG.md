@@ -20,8 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rust-version` (1.88) in `Cargo.toml`, matching the Dockerfile base image,
   with a CI job that builds against it.
 - Dependabot configuration and a scheduled `cargo audit` workflow.
+- Integration tests that render the shipped sample templates in
+  `docs/public/samples/` with their documented payloads, covering real Word
+  documents rather than hand-built fixtures.
 
 ### Changed
+
+- Dependency upgrades: `handlebars` 5 → 6, `image` 0.24 → 0.25, `tower`
+  0.4 → 0.5, `object_store` 0.11 → 0.14, `dxpdf` 0.2 → 0.5, `reqwest`
+  0.11 → 0.12, Astro 5 → 7 and Shiki 1 → 4 for the docs site, and every
+  GitHub Action to its current major.
+- The docs workflow now runs Node 22; Astro 7 requires >= 22.12.
 
 - The project moved to the `portside-labs` organization. The container image
   is now `ghcr.io/portside-labs/rendrr` and the docs are at
@@ -39,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Added `ninja-build` and `python3` to the CI dependency lists. `skia-bindings`
+  drives a GN + ninja build; GitHub's hosted runners happen to ship ninja, so
+  relying on the runner image was masking a real requirement.
 - Dropped `quick-xml` as a direct dependency — it was declared but never
   referenced anywhere in the source.
 - Removed the unused `multipart` feature from `reqwest`; inbound uploads are
@@ -55,13 +67,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Image download size cap is now enforced while streaming** rather than
   after the whole body is buffered, so a hostile URL can't exhaust memory by
   ignoring its advertised `Content-Length`.
-- Resolved 6 of 8 advisories reported by `cargo audit`: `reqwest` 0.11 → 0.12
-  drops `hyper` 0.14 and `h2` 0.3 (RUSTSEC-2026-0258), `dxpdf` 0.2 → 0.5
-  brings `quick-xml` to 0.41 (RUSTSEC-2026-0194/0195), and a lockfile refresh
-  clears `crossbeam-epoch`, `quinn-proto`, and `rustls-webpki`. The two
-  remaining `quick-xml` advisories are reachable only through `object_store`,
-  which parses XML from the configured S3 endpoint; clearing them needs
-  `object_store` 0.14 and a `StorageClient` refactor.
+- Resolved every advisory reported by `cargo audit`. `reqwest` 0.11 → 0.12
+  drops `hyper` 0.14 and `h2` 0.3 (RUSTSEC-2026-0258); `dxpdf` 0.2 → 0.5 and
+  `object_store` 0.11 → 0.14 bring every copy of `quick-xml` to 0.41
+  (RUSTSEC-2026-0194/0195); a lockfile refresh clears `crossbeam-epoch`,
+  `quinn-proto`, and `rustls-webpki`.
 - **Decompression limit on template archives.** A `.docx` is a ZIP, so a
   template within the 25MB upload limit could previously expand to gigabytes
   and exhaust memory. Individual archive entries are now capped at 100MB while

@@ -21,15 +21,16 @@ codebase.
 
 ### System dependencies
 
-`dxpdf` (Rendrr's PDF engine) links Skia, so the build host needs:
+`dxpdf` (Rendrr's PDF engine) links Skia, and `skia-bindings` drives its own
+GN + ninja build, so the build host needs:
 
 ```bash
 # Debian / Ubuntu
 sudo apt-get install -y --no-install-recommends \
-  clang cmake libfontconfig1-dev libfreetype-dev pkg-config
+  clang cmake ninja-build python3 libfontconfig1-dev libfreetype-dev pkg-config
 
 # macOS
-brew install cmake fontconfig freetype
+brew install cmake ninja fontconfig freetype
 ```
 
 You'll also need Rust 1.88+ (`rustup install stable`); the MSRV is pinned as

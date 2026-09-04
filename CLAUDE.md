@@ -22,8 +22,12 @@ cargo run -- --version   # Print the version and exit
 ```
 
 `dxpdf` links Skia, so on a fresh machine you'll need `clang`, `cmake`,
-`libfontconfig1-dev`, and `libfreetype-dev` (Debian) or
-`brew install cmake fontconfig freetype` (macOS) before the first build.
+`ninja-build`, `python3`, `libfontconfig1-dev`, and `libfreetype-dev` (Debian)
+or `brew install cmake ninja fontconfig freetype` (macOS) before the first
+build. `skia-bindings` shells out to `ninja`; without it the build panics
+rather than reporting a missing dependency. GitHub's hosted runners ship ninja
+already, so a missing entry here shows up only in the container build — which
+`.github/workflows/docker.yml` exists to catch.
 
 MSRV is 1.88 (`rust-version` in `Cargo.toml`), matching the Dockerfile's
 `rust:1.88-bookworm` base. It's driven by the dependency tree — `image` and
