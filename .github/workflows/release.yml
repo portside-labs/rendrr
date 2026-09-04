@@ -186,7 +186,7 @@ jobs:
       #   gh attestation verify oci://ghcr.io/portside-labs/rendrr:<tag> \
       #     --repo portside-labs/rendrr
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.digest.outputs.digest }}
