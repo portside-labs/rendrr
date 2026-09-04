@@ -13,7 +13,7 @@
   "dependencies": {
     "@astrojs/vue": "^5.1.1",
     "@floating-ui/vue": "^1.1.6",
-    "astro": "^5.13.7",
+    "astro": "^7.2.10",
     "shiki": "^1.24.4",
     "vue": "^3.5.13",
     "yaml": "^2.6.1"
