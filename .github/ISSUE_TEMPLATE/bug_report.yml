@@ -1,0 +1,63 @@
+name: Bug report
+description: Something isn't working as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A template + payload that reproduces the problem
+        is by far the most useful thing you can include — most rendering bugs
+        depend on the exact XML Word produced, which we can't guess from a
+        description. Please redact anything sensitive first.
+
+  - type: input
+    id: version
+    attributes:
+      label: Rendrr version
+      description: Output of `rendrr --version`, the Docker image tag, or the git SHA.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what you got instead. Include the exact error message and HTTP status code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: The steps, the JSON payload, and (attached) the .docx template if one is involved.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: output-format
+    attributes:
+      label: Output format
+      options:
+        - docx
+        - pdf
+        - not applicable
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: config
+    attributes:
+      label: Configuration
+      options:
+        - label: OAuth is enabled (`OAUTH_ISSUER` set)
+        - label: TLS is terminated by Rendrr (`TLS_CERT_PATH`/`TLS_KEY_PATH` set)
+        - label: Running the published Docker image (rather than a local build)
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant server output. `LOG_LEVEL=debug` gives more detail.
+      render: shell

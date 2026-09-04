@@ -1,0 +1,15 @@
+---
+import SiteLayout from "~/layouts/SiteLayout.astro";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<SiteLayout title="Not found — Rendrr docs">
+  <div class="container" style="padding: var(--space-20) 0; text-align: center;">
+    <h1 style="margin-bottom: var(--space-4);">404</h1>
+    <p style="color: var(--ink-muted); margin: 0 auto var(--space-6); max-width: 38ch;">
+      That page doesn't exist. It may have moved, or you may have typed the URL incorrectly.
+    </p>
+    <p><a href={`${base}/`}>Back to the docs →</a></p>
+  </div>
+</SiteLayout>

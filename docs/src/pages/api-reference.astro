@@ -1,0 +1,11 @@
+---
+import SiteLayout from "~/layouts/SiteLayout.astro";
+import ApiReference from "~/components/ApiReference.vue";
+---
+
+<SiteLayout
+  title="API reference — Rendrr docs"
+  description="Complete REST API reference for the Rendrr document rendering service."
+>
+  <ApiReference client:load />
+</SiteLayout>

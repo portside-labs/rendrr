@@ -1,0 +1,45 @@
+{
+    "data": {
+        "company": {
+            "name": "Acme Corp, LLC",
+            "street": "123 Roadrunner Cir.",
+            "city": "Tempe",
+            "state": "AZ",
+            "postal_code": "85218"
+        },
+        "customer": {
+            "name": "John Doe",
+            "street": "123 Coyote Ln.",
+            "city": "Miami",
+            "state": "FL",
+            "postal_code": "33165"
+        },
+        "quote": {
+            "num": 8473,
+            "prepared_date": "Feb 08, 2026",
+            "expire_date": "Mar 08, 2026",
+            "total": 855.00
+        },
+        "items": [
+            {
+                "name": "Anvil",
+                "quantity": 25,
+                "price": 35.00,
+                "total": 750.00
+            },
+            {
+                "name": "Red Paint",
+                "quantity": 10,
+                "price": 10.00,
+                "total": 100.00
+            },
+            {
+                "name": "Matches",
+                "quantity": 1,
+                "price": 5.00,
+                "total": 5.00
+            }
+        ]
+    },
+    "output_format": "docx"
+}

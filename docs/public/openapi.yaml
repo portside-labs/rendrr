@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: Rendrr API
+  version: 0.1.0
+  description: |
+    Self-hostable DOCX templating service. Upload a Handlebars-flavored DOCX
+    template, render it with JSON data, and download the rendered DOCX or PDF.
+
+    Authentication is optional. When the server is started with `OAUTH_ISSUER`
+    set, every request must include a valid `Authorization: Bearer <jwt>`
+    token issued by the configured OAuth 2.0 / OIDC identity provider.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Operations
+    description: Health and diagnostics.
+  - name: Templates
+    description: Upload and manage document templates.
+  - name: Renders
+    description: Generate and download documents from templates.
+
+paths:
+  /health:
+    get:
+      operationId: health
+      tags: [Operations]
+      summary: Liveness probe
+      description: |
+        Reports that the process is up and how it is configured. Never
+        requires authentication, even when `OAUTH_ISSUER` is set, so
+        orchestrators and load balancers can probe it without credentials.
+
+        Deliberately does not touch object storage: a liveness probe that
+        failed during a transient S3 outage would get healthy containers
+        restarted.
+      security: []
+      responses:
+        "200":
+          description: The service is running.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                version: "0.1.0"
+                pdf_enabled: true
+                oauth_enabled: false
+
+  /v1/templates:
+    post:
+      operationId: uploadTemplate
+      tags: [Templates]
+      summary: Upload a template
+      x-required-scope: rendrr:templates:write
+      description: |
+        Upload a DOCX template with Handlebars placeholder syntax. The file is
+        validated for correct DOCX structure and template syntax on upload.
+      security:
+        - BearerAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The DOCX template file.
+                name:
+                  type: string
+                  description: Optional display name; defaults to the filename.
+            encoding:
+              file:
+                contentType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      responses:
+        "201":
+          description: Template uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateUploadResponse"
+              example:
+                template_id: "01933e5c-8f2a-7890-a1b2-c3d4e5f60001"
+                name: "quarterly-report.docx"
+                uploaded_at: "2026-05-20T14:32:01.123Z"
+                original_filename: "quarterly-report.docx"
+                file_size_bytes: 24576
+        "400":
+          description: Invalid request — missing file, invalid filename, or bad DOCX structure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: BadRequest
+                message: "No file provided"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/PermissionDenied"
+        "413":
+          description: |
+            Request body exceeded the 50MB server limit. Templates themselves
+            are additionally capped at 25MB, which returns 400.
+        "422":
+          description: Template syntax validation failed. Returns a structured report of all issues found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationReport"
+              example:
+                status: validation_failed
+                message: "Template has 2 syntax errors"
+                errors:
+                  - type: UnclosedBlock
+                    expression: "{{#each items}}"
+                    suggestion: "Add a closing {{/each}} tag"
+                    severity: error
+                    category: syntax
+                    location: "word/document.xml"
+                  - type: MismatchedClosingTag
+                    expression: "{{/if}}"
+                    suggestion: "Expected {{/each}}, but found {{/if}}"
+                    severity: error
+                    category: syntax
+                    location: "word/document.xml"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/templates/{template_id}:
+    delete:
+      operationId: deleteTemplate
+      tags: [Templates]
+      summary: Delete a template
+      x-required-scope: rendrr:templates:delete
+      description: |
+        Permanently remove a template object from storage.
+      security:
+        - BearerAuth: []
+        - {}
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          description: UUID of the template to delete.
+          example: "01933e5c-8f2a-7890-a1b2-c3d4e5f60001"
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Template deleted successfully. No content returned.
+        "400":
+          description: Invalid template_id format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: BadRequest
+                message: "Invalid template_id format"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/PermissionDenied"
+        "404":
+          description: Template not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: TemplateNotFound
+                message: "Template not found: 01933e5c-8f2a-7890-a1b2-c3d4e5f60001"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/renders:
+    post:
+      operationId: renderDocument
+      tags: [Renders]
+      summary: Render a document
+      x-required-scope: rendrr:renders:write
+      description: |
+        Render a document by merging JSON data into a stored template.
+      security:
+        - BearerAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenderRequest"
+            example:
+              template_id: "01933e5c-8f2a-7890-a1b2-c3d4e5f60001"
+              data:
+                customer_name: "Jane Smith"
+                invoice_number: "INV-2026-0042"
+                line_items:
+                  - description: "Consulting"
+                    amount: "$5,000"
+                  - description: "Development"
+                    amount: "$12,000"
+              output_format: "docx"
+      responses:
+        "201":
+          description: Document rendered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RenderResponse"
+              example:
+                render_id: "01933e5d-1234-7890-abcd-ef1234567890"
+                template_id: "01933e5c-8f2a-7890-a1b2-c3d4e5f60001"
+                output_format: docx
+                storage_path: "renders/01933e5d-1234-7890-abcd-ef1234567890.docx"
+                created_at: "2026-05-20T14:35:22.456Z"
+                render_status: completed
+        "400":
+          description: Invalid request — JSON too large, PDF disabled, or render-time validation failure.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - $ref: "#/components/schemas/ValidationReport"
+              example:
+                error: BadRequest
+                message: "PDF output is not enabled on this server."
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/PermissionDenied"
+        "422":
+          description: Validation failed — missing or invalid template_id, or template not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationReport"
+              example:
+                status: validation_failed
+                message: "Template not found: 01933e5c-8f2a-7890-a1b2-c3d4e5f60001"
+                errors:
+                  - type: not_found
+                    expression: template_id
+                    suggestion: "Provide a valid template_id that exists in storage"
+                    severity: error
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/renders/{render_id}/download:
+    get:
+      operationId: downloadRender
+      tags: [Renders]
+      summary: Download a rendered document
+      x-required-scope: rendrr:renders:read
+      description: |
+        Stream the previously rendered DOCX or PDF file by its render ID.
+      security:
+        - BearerAuth: []
+        - {}
+      parameters:
+        - name: render_id
+          in: path
+          required: true
+          description: UUID of the render to download.
+          example: "01933e5d-1234-7890-abcd-ef1234567890"
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The rendered document file.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              example: 'attachment; filename="01933e5d-1234-7890-abcd-ef1234567890.docx"'
+          content:
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid ID format or render not found in storage.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: BadRequest
+                message: "Render not found: 01933e5d-1234-7890-abcd-ef1234567890"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/PermissionDenied"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Bearer JWT issued by the OAuth 2.0 / OIDC provider configured via
+        `OAUTH_ISSUER`. Only required when the server has authentication enabled.
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: A machine-readable error label.
+          enum:
+            - BadRequest
+            - Unauthenticated
+            - PermissionDenied
+            - TemplateNotFound
+            - TemplateError
+            - InternalError
+        message:
+          type: string
+          description: A human-readable error message.
+
+    ValidationIssue:
+      type: object
+      required: [type, expression, suggestion, severity]
+      properties:
+        type:
+          type: string
+        expression:
+          type: string
+        suggestion:
+          type: string
+        severity:
+          type: string
+          enum: [error, warning]
+        category:
+          type: string
+          enum: [syntax, data]
+        location:
+          type: string
+
+    ValidationReport:
+      type: object
+      required: [status, message]
+      properties:
+        status:
+          type: string
+          enum: [validation_failed, render_failed]
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+
+    RenderRequest:
+      type: object
+      required: [template_id, data, output_format]
+      properties:
+        template_id:
+          type: string
+          format: uuid
+        data:
+          type: object
+          additionalProperties: true
+        output_format:
+          type: string
+          enum: [docx, pdf]
+
+    RenderResponse:
+      type: object
+      properties:
+        render_id:
+          type: string
+          format: uuid
+        template_id:
+          type: string
+          format: uuid
+        output_format:
+          type: string
+          enum: [docx, pdf]
+        storage_path:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        render_status:
+          type: string
+          enum: [pending, completed, failed]
+
+    HealthResponse:
+      type: object
+      required: [status, version, pdf_enabled, oauth_enabled]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        version:
+          type: string
+          description: The running Rendrr version.
+          example: "0.1.0"
+        pdf_enabled:
+          type: boolean
+          description: Whether in-process DOCX→PDF conversion is available.
+        oauth_enabled:
+          type: boolean
+          description: Whether bearer-token authentication is being enforced.
+    TemplateUploadResponse:
+      type: object
+      properties:
+        template_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+        original_filename:
+          type: string
+        file_size_bytes:
+          type: integer
+          format: int64
+
+  responses:
+    PermissionDenied:
+      description: |
+        The token is valid but does not carry the scope this endpoint
+        requires. Only returned when the server is running with
+        `OAUTH_ISSUER` set. The scope name in the message reflects the
+        configured `RENDRR_SCOPE_SEPARATOR`.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: PermissionDenied
+            message: "Token is missing required scope 'rendrr:templates:write'"
+    Unauthenticated:
+      description: Missing or invalid OAuth bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Unauthenticated
+            message: "Missing Authorization header"
+    InternalError:
+      description: An unexpected server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: InternalError
+            message: "An internal error occurred"

@@ -1,0 +1,60 @@
+{
+    "data": {
+        "company_name": "Acme Solutions LLC",
+        "company_address": "500 Innovation Drive, Suite 200, Austin, TX 78701",
+        "company_email": "billing@acmesolutions.com",
+        "company_logo": "https://picsum.photos/200/60",
+
+        "client_name": "Jordan Martinez",
+        "client_company": "Pinnacle Retail Group",
+        "client_address": "1200 Commerce Blvd, Chicago, IL 60601",
+        "client_email": "jordan.martinez@pinnacleretail.com",
+
+        "invoice_number": "INV-2025-0042",
+        "invoice_date": "March 15, 2025",
+        "due_date": "April 14, 2025",
+        "po_number": "PO-88123",
+
+        "line_items": [
+            {
+                "description": "Strategic Consulting Services — Q1 Planning",
+                "quantity": "12 hrs",
+                "unit_price": "$150.00",
+                "amount": "$1,800.00"
+            },
+            {
+                "description": "Software License — Enterprise Plan (Annual)",
+                "quantity": "1",
+                "unit_price": "$2,400.00",
+                "amount": "$2,400.00"
+            },
+            {
+                "description": "Implementation & Onboarding Support",
+                "quantity": "8 hrs",
+                "unit_price": "$125.00",
+                "amount": "$1,000.00"
+            },
+            {
+                "description": "Custom Dashboard Development",
+                "quantity": "20 hrs",
+                "unit_price": "$175.00",
+                "amount": "$3,500.00"
+            }
+        ],
+
+        "subtotal": "$8,700.00",
+        "discount": "-$500.00",
+        "tax_rate": "7%",
+        "tax_amount": "$575.50",
+        "total": "$8,775.50",
+
+        "bank_name": "First National Bank",
+        "account_name": "Acme Solutions LLC",
+        "account_number": "****4892",
+        "routing_number": "021000021",
+        "payment_terms": "Net 30 — Payment due by April 14, 2025",
+
+        "notes": "Please include invoice number INV-2025-0042 in your payment reference. For questions, contact accounts@acmesolutions.com or call (512) 555-0198."
+    },
+    "output_format": "docx"
+}

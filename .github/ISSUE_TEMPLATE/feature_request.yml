@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest a capability or change
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rendrr intentionally keeps a small surface area: new features should be
+        opt-in, and the no-config default should stay simple. Proposals that
+        add a required external service or a second auth mode are unlikely to
+        be accepted — see CONTRIBUTING.md.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that you can't do today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should Rendrr do? If it needs configuration, what would the env var look like?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including whatever you're doing as a workaround today.

@@ -1,0 +1,104 @@
+---
+import "~/styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Rendrr documentation" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="site-header__brand" href={`${base}/`}>
+          <span class="site-header__name">Rendrr</span>
+          <span class="site-header__tag">docs</span>
+        </a>
+        <nav class="site-header__nav">
+          <a href={`${base}/`}>Docs</a>
+          <a href={`${base}/api-reference`}>API reference</a>
+          <a href="https://github.com/portside-labs/rendrr" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(251, 250, 248, 0.85);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .site-header__brand:hover { color: var(--ink); }
+
+  .site-header__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    letter-spacing: -0.01em;
+  }
+
+  .site-header__tag {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    padding-top: 2px;
+  }
+
+  .site-header__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+  }
+
+  .site-header__nav a {
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .site-header__nav a:hover { color: var(--ink); }
+
+  @media (max-width: 640px) {
+    .site-header__tag { display: none; }
+    .site-header__nav { gap: var(--space-4); }
+  }
+</style>

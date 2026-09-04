@@ -1,0 +1,209 @@
+/* ============================================
+   Rendrr Docs — adapted from the Rendrr "Foundry"
+   design system. Warm neutrals, terracotta accent.
+   ============================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+    /* Ink & Paper — brand-infused neutrals */
+    --ink: #1c1917;
+    --ink-light: #3f3936;
+    --ink-muted: #746c67;
+    --ink-faint: #a39d99;
+    --paper: #fbfaf8;
+    --paper-warm: #f2efec;
+    --paper-dark: #e6e2df;
+    --cream: #d9d5d1;
+    --surface: #fefdfb;
+
+    /* Accent — warm terracotta */
+    --accent: #c65a2c;
+    --accent-hover: #ab4d24;
+    --accent-light: #f4ebe6;
+    --accent-dark: #8f3c19;
+
+    /* HTTP-method badge colors — desaturated to sit alongside the warm palette */
+    --method-get: #1a8a5a;     /* matches --success */
+    --method-post: #3f6c95;    /* dusty cobalt */
+    --method-put: #b07a18;     /* muted amber */
+    --method-delete: #b53838;  /* slightly muted danger */
+
+    /* Code background — Night Owl */
+    --code-bg: #011627;
+    --code-surface: #01111d;
+
+    /* Functional */
+    --success: #1a8a5a;
+    --success-light: #d8f5e6;
+    --warning: #c08800;
+    --warning-light: #fef4cd;
+    --danger: #d43a3a;
+    --danger-light: #fde5e5;
+
+    /* Typography */
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-ui: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+
+    /* Type scale */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
+    --text-6xl: 3.75rem;
+    --text-7xl: 5rem;
+
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+
+    /* Borders & Radius */
+    --border-color: #e0ddda;
+    --border-dark: #c8c3bf;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    /* Shadows — warm-tinted */
+    --shadow-sm: 0 1px 3px rgba(22, 18, 14, 0.06);
+    --shadow-md: 0 4px 12px rgba(22, 18, 14, 0.09);
+    --shadow-lg: 0 8px 24px rgba(22, 18, 14, 0.13);
+    --shadow-xl: 0 16px 48px rgba(22, 18, 14, 0.18);
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+}
+
+/* ---- Reset & Base ---- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    color: var(--ink);
+    background-color: var(--paper);
+}
+
+/* ---- Typography ---- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+
+h1 { font-size: var(--text-5xl); }
+h2 { font-size: var(--text-4xl); }
+h3 { font-size: var(--text-3xl); }
+h4 { font-size: var(--text-2xl); }
+h5 { font-size: var(--text-xl); }
+h6 { font-size: var(--text-lg); }
+
+p {
+    margin-bottom: var(--space-4);
+    max-width: 62ch;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover { color: var(--accent-dark); }
+
+strong { font-weight: 600; }
+
+code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--paper-warm);
+    border: 1px solid var(--border-color);
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-sm);
+}
+
+pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    background: var(--code-bg);
+    color: #c9d1d9;
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    line-height: 1.6;
+    margin-bottom: var(--space-6);
+}
+
+pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: var(--space-8) 0;
+}
+
+/* ---- Layout utilities ---- */
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+}
+
+.container-narrow { max-width: 800px; }
+.container-wide { max-width: 1400px; }
+
+::selection {
+    background: var(--accent-light);
+    color: var(--ink);
+}
+
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cream); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-dark); }

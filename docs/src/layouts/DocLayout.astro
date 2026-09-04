@@ -1,0 +1,282 @@
+---
+import SiteLayout from "./SiteLayout.astro";
+import DocsSidebar from "~/components/DocsSidebar.astro";
+import DocsToc from "~/components/DocsToc.astro";
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  headings?: MarkdownHeading[];
+}
+
+const { title, description, headings = [] } = Astro.props;
+---
+
+<SiteLayout title={`${title} — Rendrr docs`} description={description}>
+  <div class="docs-page">
+    <div class="container docs-layout">
+      <DocsSidebar />
+      <article class="docs-content">
+        <slot />
+      </article>
+      <DocsToc headings={headings} />
+    </div>
+  </div>
+</SiteLayout>
+
+<script>
+  // Make every Markdown heading (h2/h3/h4) with an id act as a copyable
+  // permalink: click anywhere on the heading → update the URL bar and copy
+  // the full link to the clipboard. A short '✓' flash confirms the copy.
+  function wireHeadingPermalinks() {
+    const headings = document.querySelectorAll<HTMLHeadingElement>(
+      ".docs-content h2[id], .docs-content h3[id], .docs-content h4[id]"
+    );
+    headings.forEach((h) => {
+      h.addEventListener("click", async () => {
+        const url = `${window.location.origin}${window.location.pathname}#${h.id}`;
+        history.replaceState(null, "", `#${h.id}`);
+        try {
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(url);
+            h.classList.add("heading-copied");
+            window.setTimeout(() => h.classList.remove("heading-copied"), 1200);
+          }
+        } catch {
+          /* clipboard blocked (e.g. insecure context) — URL update still works */
+        }
+      });
+    });
+  }
+
+  // Astro view transitions can swap content without a full reload; rewire on each.
+  wireHeadingPermalinks();
+  document.addEventListener("astro:page-load", wireHeadingPermalinks);
+</script>
+
+<style is:global>
+  .docs-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+
+  .docs-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 200px;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  .docs-content {
+    min-width: 0;
+    max-width: 720px;
+    /* Slight de-emphasis on body prose so headings, links and code carry the
+       visual weight. Paragraphs, lists and table cells inherit this. */
+    color: var(--ink-light);
+  }
+
+  .docs-content h1,
+  .docs-content h2,
+  .docs-content h3,
+  .docs-content h4,
+  .docs-content h5,
+  .docs-content h6 {
+    color: var(--ink);
+  }
+
+  .docs-content h1 {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-6);
+  }
+
+  .docs-content h2,
+  .docs-content h3,
+  .docs-content h4 {
+    scroll-margin-top: 80px;
+    position: relative;
+  }
+
+  /* Headings with an id (every Markdown heading gets one via rehype-slug) are
+     clickable permalinks. A `#` appears in the left margin on hover; clicking
+     anywhere on the heading updates the URL bar and copies the link. */
+  .docs-content h2[id],
+  .docs-content h3[id],
+  .docs-content h4[id] {
+    cursor: pointer;
+  }
+
+  .docs-content h2[id]::before,
+  .docs-content h3[id]::before,
+  .docs-content h4[id]::before {
+    content: "#";
+    position: absolute;
+    left: -1.1em;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    color: var(--ink-faint);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
+    pointer-events: none;
+  }
+
+  .docs-content h2[id]:hover::before,
+  .docs-content h3[id]:hover::before,
+  .docs-content h4[id]:hover::before {
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  /* Brief flash confirming the URL was copied to clipboard. */
+  .docs-content h2[id].heading-copied::before,
+  .docs-content h3[id].heading-copied::before,
+  .docs-content h4[id].heading-copied::before {
+    content: "✓";
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  .docs-content h2 {
+    font-size: var(--text-2xl);
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-4);
+  }
+
+  .docs-content h2:first-child,
+  .docs-content h1 + h2 { margin-top: 0; }
+
+  .docs-content h3 {
+    font-size: var(--text-xl);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+  }
+
+  .docs-content h4 {
+    font-size: var(--text-lg);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+
+  .docs-content p {
+    margin-bottom: var(--space-4);
+    line-height: 1.7;
+    max-width: none;
+  }
+
+  .docs-content ul,
+  .docs-content ol {
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+  }
+
+  .docs-content li {
+    margin-bottom: var(--space-2);
+    line-height: 1.6;
+  }
+
+  .docs-content blockquote {
+    margin: var(--space-6) 0;
+    padding: var(--space-4) var(--space-5);
+    border-left: 3px solid var(--accent);
+    background: var(--accent-light);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .docs-content blockquote p { margin: 0; }
+
+  .docs-content blockquote p + p { margin-top: var(--space-2); }
+
+  .docs-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--space-6);
+    font-size: var(--text-sm);
+  }
+
+  .docs-content table th {
+    text-align: left;
+    font-weight: 600;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .docs-content table td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--paper-dark);
+  }
+
+  .docs-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: var(--space-4) auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Diagrams are designed for a dark backdrop — frame them so the labels stay legible. */
+  .docs-content img[src*="diagrams/"] {
+    background: #0f1419;
+    padding: var(--space-8) var(--space-6);
+    border: 1px solid var(--ink);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Smaller sizing for inline expression/variable screenshots */
+  .docs-content img[src*="01-variables"],
+  .docs-content img[src*="02-nested"],
+  .docs-content img[src*="03-if"],
+  .docs-content img[src*="04-if-else"],
+  .docs-content img[src*="05-unless"],
+  .docs-content img[src*="06-each-simple"],
+  .docs-content img[src*="07-each-objects"],
+  .docs-content img[src*="08-parent-context"],
+  .docs-content img[src*="10-image"],
+  .docs-content img[src*="11-image-width"],
+  .docs-content img[src*="13-header-footer"],
+  .docs-content img[src*="14-raw"] {
+    max-width: min(560px, 100%);
+  }
+
+  .docs-content img[src*="09-table"],
+  .docs-content img[src*="12-chunk"] {
+    max-width: min(640px, 100%);
+  }
+
+  .docs-content a {
+    color: var(--accent);
+  }
+
+  .docs-content strong { font-weight: 600; }
+
+  .docs-content pre {
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .docs-content :not(pre) > code {
+    font-size: 0.85em;
+  }
+
+  @media (max-width: 1024px) {
+    .docs-layout {
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .docs-layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+  }
+</style>
