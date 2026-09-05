@@ -252,6 +252,46 @@ const { title, description, headings = [] } = Astro.props;
     max-width: min(640px, 100%);
   }
 
+  /* Side-by-side template/result comparison on the introduction page. The
+     two images carry the whole "what does this do" explanation, so they sit
+     together above the fold rather than stacked like the per-helper
+     screenshots in the syntax reference. */
+  .docs-content .before-after {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+    margin: var(--space-6) 0 var(--space-8);
+  }
+
+  .docs-content .before-after figure {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .docs-content .before-after img {
+    margin: 0 0 var(--space-3);
+    width: 100%;
+  }
+
+  .docs-content .before-after figcaption {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--ink-faint);
+  }
+
+  .docs-content .before-after figcaption strong {
+    color: var(--ink-light);
+  }
+
+  /* Stack on narrow screens — two half-width document screenshots side by
+     side stop being readable well before the sidebar collapses. */
+  @media (max-width: 860px) {
+    .docs-content .before-after {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+  }
+
   .docs-content a {
     color: var(--accent);
   }

@@ -1,10 +1,18 @@
 # Rendrr
 
-A self-hostable HTTP service that renders Handlebars-flavored Word (`.docx`)
-templates into DOCX or PDF with JSON data. Optional OAuth 2.0 bearer-token
-authentication, optional native TLS. No external services required at runtime.
+**Rendrr turns a Word document into an API.**
 
-**📖 [Full documentation](https://portside-labs.github.io/rendrr/)**
+Author a `.docx` in Word and type `{{customer_name}}` wherever a value should
+go. Upload it once, then POST JSON whenever you need a document — you get back
+a finished `.docx` or PDF with the original layout, fonts, and styling intact.
+
+Self-hosted: one Rust binary, one Docker image. Your documents and data never
+leave your infrastructure.
+
+📖 **[Documentation](https://portside-labs.github.io/rendrr/)** ·
+[Getting started](https://portside-labs.github.io/rendrr/getting-started) ·
+[Template syntax](https://portside-labs.github.io/rendrr/template-syntax) ·
+[API reference](https://portside-labs.github.io/rendrr/api-reference)
 
 ![Diagram of Rendrr](./docs/public/diagrams/context.png)
 
@@ -42,7 +50,7 @@ published to GHCR on every `v*` tag.
 
 ### Try it locally in one command
 
-The [Getting Started guide](https://portside-labs.github.io/rendrr/getting-started.html)
+The [Getting Started guide](https://portside-labs.github.io/rendrr/getting-started)
 in the docs has a self-contained `docker-compose.yml` that brings up Rendrr
 together with a local MinIO bucket — paste, `docker compose up -d`, done.
 

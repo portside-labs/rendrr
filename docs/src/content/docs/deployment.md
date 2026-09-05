@@ -7,7 +7,7 @@ description: Production deployment patterns for Rendrr — Docker, Compose, Kube
 
 This guide covers everything you need to deploy Rendrr to production. Rendrr ships as a single statically-linked Rust binary in a Debian-slim container — no sidecars, no databases, no message queues. The whole runtime surface is the container itself plus an S3-compatible bucket.
 
-If you're just trying it locally, read [Getting started](./) first. Come back here when you're ready to deploy.
+If you're just trying it locally, read [Getting started](./getting-started) first. Come back here when you're ready to deploy.
 
 ## Architecture at a glance
 

@@ -5,7 +5,8 @@ export interface DocLink {
 }
 
 export const DOCS: DocLink[] = [
-  { slug: "", title: "Getting started", description: "Run Rendrr in one command." },
+  { slug: "", title: "Introduction", description: "What Rendrr is and what it does." },
+  { slug: "getting-started", title: "Getting started", description: "Run Rendrr in one command." },
   { slug: "template-syntax", title: "Template syntax", description: "Handlebars dialect Rendrr understands." },
   { slug: "oauth", title: "OAuth 2.0", description: "Lock the API behind your identity provider." },
   { slug: "deployment", title: "Deployment", description: "Production deployment patterns." },

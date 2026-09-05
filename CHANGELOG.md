@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rust-version` (1.89) in `Cargo.toml`, with a CI job that builds against it.
   The job reads the value from `Cargo.toml` instead of hardcoding a toolchain,
   so the two can't drift.
+- An Introduction page, now the docs home, answering "what is this?" before
+  anything else: what Rendrr does, the problem it solves, a before/after look
+  at a template and its rendered output, and what it explicitly is not.
+  Getting started moved to its own `/getting-started` URL.
 - Dependabot configuration and a scheduled `cargo audit` workflow.
 - A `Docker` workflow that builds the container image and smoke-tests it on
   any change to the Dockerfile or the dependency manifests. The image is what
