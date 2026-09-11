@@ -31,7 +31,7 @@ thiserror = "1.0"
 dotenvy = "0.15"
 
 bytes = "1.5"
-tower-http = { version = "0.5", features = ["cors", "trace"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
