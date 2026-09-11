@@ -27,7 +27,7 @@ object_store = { version = "0.14", features = ["aws"] }
 
 uuid = { version = "1.7", features = ["v7", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-thiserror = "1.0"
+thiserror = "2.0"
 dotenvy = "0.15"
 
 bytes = "1.5"
