@@ -11,11 +11,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/vue": "^7.0.2",
+    "@astrojs/vue": "^7.0.3",
     "@floating-ui/vue": "^2.0.1",
-    "astro": "^7.3.1",
-    "shiki": "^4.4.3",
-    "vue": "^3.5.42",
-    "yaml": "^2.9.0"
+    "astro": "^7.3.5",
+    "shiki": "^4.5.0",
+    "vue": "^3.5.43",
+    "yaml": "^2.9.1"
   }
 }
